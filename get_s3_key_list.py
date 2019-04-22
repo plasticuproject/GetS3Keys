@@ -59,8 +59,7 @@ def run():
 
 
 def contents_info():
-    os.system('rm contents_info.csv')
-    with open('contents_info.csv', mode='a') as file:
+    with open('contents_info.csv', mode='w') as file:
         writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass'])
         for i in range(len(assets)):
