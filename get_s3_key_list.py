@@ -15,7 +15,7 @@ sizes_list = []
 dates_list = []
 etags_list = []
 storage_classes_list = []
-owner_bool = ''
+owner_bool = ['No']
 lastKey = ''
 running = True
 
@@ -30,17 +30,15 @@ def run():
                 tags.append(line)
         infile.close()
         ends = (re.findall('(?:<Key>)([\r\s\S]*?)(?:<\/Key>)', tags[1]))
-        ##
         sizes = (re.findall('(?:<Size>)([\r\s\S]*?)(?:<\/Size>)', tags[1]))
         dates = (re.findall('(?:<LastModified>)([\r\s\S]*?)(?:<\/LastModified>)', tags[1]))
         etags = (re.findall('(?:<ETag>)([\r\s\S]*?)(?:<\/ETag>)', tags[1]))
         storage_classes = (re.findall('(?:<StorageClass>)([\r\s\S]*?)(?:<\/StorageClass>)', tags[1]))
         owner = (re.findall('(?:<Owner>)([\r\s\S]*?)(?:<\/Owner>)', tags[1]))
         if len(owner) > 0:
-            owner_bool = 'Yes'
-        else:
-            owner_bool = 'No'
-        ##
+            for i in owner:
+                owner_bool = []
+                owner_bool.append('Yes')
         if len(ends) < 1:
             running = False
         for i in ends:
@@ -69,7 +67,7 @@ def contents_info():
         writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
         for i in range(len(assets)):
-            writer.writerow(['https://' + url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool])
+            writer.writerow(['https://' + url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool[0]])
 
 
 
