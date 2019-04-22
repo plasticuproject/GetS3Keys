@@ -15,12 +15,13 @@ sizes_list = []
 dates_list = []
 etags_list = []
 storage_classes_list = []
+owner_bool = ''
 lastKey = ''
 running = True
 
 
 def run():
-    global assets, sizes_list, dates_list, etags_list, storage_classes_list, lastKey, running
+    global assets, sizes_list, dates_list, etags_list, storage_classes_list, owner_bool, lastKey, running
     tags = []
     try:
         os.system('wget ' + url + '/?marker=' + lastKey + ' -O 1.html')
@@ -34,6 +35,11 @@ def run():
         dates = (re.findall('(?:<LastModified>)([\r\s\S]*?)(?:<\/LastModified>)', tags[1]))
         etags = (re.findall('(?:<ETag>)([\r\s\S]*?)(?:<\/ETag>)', tags[1]))
         storage_classes = (re.findall('(?:<StorageClass>)([\r\s\S]*?)(?:<\/StorageClass>)', tags[1]))
+        owner = (re.findall('(?:<Owner>)([\r\s\S]*?)(?:<\/Owner>)', tags[1]))
+        if len(owner) > 0:
+            owner_bool = 'Yes'
+        else:
+            owner_bool = 'No'
         ##
         if len(ends) < 1:
             running = False
@@ -61,9 +67,9 @@ def run():
 def contents_info():
     with open('contents_info.csv', mode='w') as file:
         writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass'])
+        writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
         for i in range(len(assets)):
-            writer.writerow(['https://' + url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i]])
+            writer.writerow(['https://' + url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool])
 
 
 
