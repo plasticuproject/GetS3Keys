@@ -42,7 +42,10 @@ def run():
         if len(ends) < 1:
             running = False
         for i in ends:
-            assets.append(i)
+            clean = i.replace('&amp;', '&')
+            clean = clean.replace('&quot;', '"')
+            clean = clean.replace('&apos;', "'")
+            assets.append(clean)
         for i in sizes:
             sizes_list.append(i)
         for i in dates:
