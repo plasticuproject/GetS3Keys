@@ -2,6 +2,8 @@
 #MIT License
 #Copyright (C) 2019 plasticuproject.pm.me
 
+
+import subprocess
 import argparse
 import re
 import os
@@ -10,21 +12,61 @@ import csv
 
 
 url = ''
-assets = []
-sizes_list = []
-dates_list = []
-etags_list = []
-storage_classes_list = []
-owner_bool = ['No']
 lastKey = ''
+oldKey = 'init'
 running = True
+
+banner = ('''
+    \nInput an S3 Bucket Domain. Since Bucket requests only return 1000 results at
+    a time, this script will log the first 1000 Keys, then use the last Key as a
+    marker to retrieve more Keys until all of the bucket Keys have been logged.
+    It will then print out a file called "URL"_Keys.txt containing all of the Key
+    URLs., and "URL"_Info.csv containing information about each Key file.\n''')
+
+
+def write_keys(assets):
+
+    with open(url + '_Keys.txt', 'a') as outfile:
+        for i in assets:
+            outfile.write(url + '/' + i + '\n')
+        outfile.close()
+    os.remove('1.html')
+
+
+def contents_info(assets, dates_list, etags_list, sizes_list, storage_classes_list, owner_bool):
+
+    with open(url + '_Info.csv', mode='a') as file:
+        writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for i in range(len(assets)):
+            writer.writerow([url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool[0]])
+
+
+def clean_up():
+
+    try:
+        os.remove('1.html')
+        quit()
+    except:
+        quit()
 
 
 def run():
-    global assets, sizes_list, dates_list, etags_list, storage_classes_list, owner_bool, lastKey, running
+    
+    global running, lastKey, oldKey
+    assets = []
+    sizes_list = []
+    dates_list = []
+    etags_list = []
+    storage_classes_list = []
+    owner_bool = ['No']
     tags = []
+
     try:
-        os.system('wget ' + url + '/?marker=' + lastKey + ' -O 1.html')
+        if oldKey == lastKey:
+            clean_up()
+
+        subprocess.run(['wget', url + '/?marker=' + lastKey, '-O', '1.html'])
+        oldKey = lastKey
         with open('1.html', 'r') as infile:
             for line in infile:
                 tags.append(line)
@@ -45,6 +87,7 @@ def run():
             clean = i.replace('&amp;', '&')
             clean = clean.replace('&quot;', '"')
             clean = clean.replace('&apos;', "'")
+            clean = clean.replace(' ', "+")
             assets.append(clean)
         for i in sizes:
             sizes_list.append(i)
@@ -56,55 +99,29 @@ def run():
         for i in storage_classes:
             storage_classes_list.append(i)
         lastKey = assets[-1]
+        write_keys(assets)
+        contents_info(assets, dates_list, etags_list, sizes_list, storage_classes_list, owner_bool)
     except:
-        print('\nBad URL or connection. Or just broken. Whatever.\n')
-        try:
-            os.remove('1.html')
-        except:
-            pass
-        sys.exit()
-
-
-def contents_info():
-    with open('contents_info.csv', mode='w') as file:
-        writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
-        for i in range(len(assets)):
-            writer.writerow(['https://' + url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool[0]])
-
-
-
-banner = ('''
-    \nInput an S3 Bucket Domain. Since Bucket requests only return 1000 results at
-    a time, this script will log the first 1000 Keys, then use the last Key as a
-    marker to retrieve more Keys until all of the bucket Keys have been logged.
-    It will then print out a file called S3_Keys.txt containing all of the Key
-    URLs.\n''')
-
+        clean_up()
+        
 
 def main():
+
     global url
     parser = argparse.ArgumentParser(description=banner)
     parser.add_argument('domain', type=str, metavar='Domain',
                          help='S3 Bucket domain name (example: test.s3.amazonaws.com)')
     args = parser.parse_args()
     url = args.domain
+
     try:
-        while running:
+        with open(url + '_Info.csv', mode='w') as file:
+            writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
+        while True:
             run()
-        with open('S3_Keys.txt', 'w') as outfile:
-            for i in assets:
-                outfile.write(url + '/' + i + '\n')
-            outfile.close()
-        contents_info()
-        os.remove('1.html')
     except KeyboardInterrupt:
-        print('\nSo sorry, me so dum.\n')
-        try:
-            os.remove('1.html')
-        except:
-            pass
-        sys.exit()
+        clean_up()
         
 
 if __name__ == '__main__':
