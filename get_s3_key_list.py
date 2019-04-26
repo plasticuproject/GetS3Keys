@@ -26,7 +26,8 @@ banner = ('''
 
 def write_keys(assets):
 
-    with open(url + '_Keys.txt', 'a') as outfile:
+    new_url = url.replace('/', '-')
+    with open(new_url + '_Keys.txt', 'a') as outfile:
         for i in assets:
             outfile.write(url + '/' + i + '\n')
         outfile.close()
@@ -35,7 +36,8 @@ def write_keys(assets):
 
 def contents_info(assets, dates_list, etags_list, sizes_list, storage_classes_list, owner_bool):
 
-    with open(url + '_Info.csv', mode='a') as file:
+    new_url = url.replace('/', '-')
+    with open(new_url + '_Info.csv', mode='a') as file:
         writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for i in range(len(assets)):
             writer.writerow([url + '/' + assets[i], dates_list[i], etags_list[i], sizes_list[i], storage_classes_list[i], owner_bool[0]])
@@ -115,7 +117,8 @@ def main():
     url = args.domain
 
     try:
-        with open(url + '_Info.csv', mode='w') as file:
+        new_url = url.replace('/', '-')
+        with open(new_url + '_Info.csv', mode='w') as file:
             writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
         while True:
