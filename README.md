@@ -5,6 +5,9 @@ will log the first 1000 Keys, then use the last Key as a marker to retrieve more
 Keys until all of the bucket Keys have been logged. It will then output a file <br />
 called **"URL"_Keys.txt** containing all of the Key URLs. It will also create **"URL"_Info.csv** <br />
 containing various information about the Key files. <br />
+<br />
+Then run **get_storage_size.py "URL"_Info.csv** to print out the combined size of all the files <br />
+in the S3 Bucket, based on the information in the CSV file. <br />
 
 
 ## Requirements
@@ -33,3 +36,17 @@ optional arguments:
 
 ```
 
+Run **get_storage_size.py** to print the combined size of Bucket files.
+```
+usage: get_storage_size.py [-h] CSV File
+
+Feed this program your CSV File to return the combined size of all the files
+in the S3 Bucket.
+
+positional arguments:
+  CSV File    S3 Bucket CSV File (example: test.s3.amazonaws.com_Info.csv)
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+```
