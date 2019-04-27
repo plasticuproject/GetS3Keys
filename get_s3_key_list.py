@@ -121,7 +121,7 @@ def main():
         with open(new_url + '_Info.csv', mode='w') as file:
             writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['Key', 'LastModified', 'ETag', 'Size', 'StorageClass', 'Owner Listed'])
-        while True:
+        while running:
             run()
     except KeyboardInterrupt:
         clean_up()
